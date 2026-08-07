@@ -9,7 +9,7 @@ from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 PRICING_DATE = "2026-08-07"
 UNAVAILABLE = "---"
 GIB = Decimal(1024) ** 3
-MONEY_QUANTUM = Decimal("0.000001")
+MONEY_QUANTUM = Decimal("0.01")
 MEMORY_RE = re.compile(r"(?P<amount>\d+(?:\.\d+)?)(?P<unit>[KMGTPE]?)")
 MEMORY_MULTIPLIERS = {
     "": Decimal(1),
@@ -68,8 +68,8 @@ def estimate_cost(
         alloc_tres: Allocated resources from ``AllocTRES``.
 
     Returns:
-        A dollar value with six decimal places, or ``---`` when an estimate is
-        unavailable.
+        A dollar value rounded to the nearest cent, or ``---`` when an
+        estimate is unavailable.
     """
     if state.casefold() in {"running", "pending"}:
         return UNAVAILABLE
@@ -95,7 +95,7 @@ def estimate_cost(
 
     cost = elapsed_minutes * profile.rate * max(weighted_resources)
     rendered = cost.quantize(MONEY_QUANTUM, rounding=ROUND_HALF_UP)
-    return f"${rendered:.6f}"
+    return f"${rendered:.2f}"
 
 
 def _parse_alloc_tres(alloc_tres: str) -> tuple[Decimal, Decimal, Decimal]:
