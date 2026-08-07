@@ -43,7 +43,7 @@ Multi-node and GPU utilization is acquired from information contained in the
 
 ### Installation
 
-`reportseff` runs on python >= 3.6.
+`reportseff` runs on Python >= 3.10.
 The only external dependency is click (>= 6.7).
 Calling
 
@@ -54,6 +54,107 @@ pipx install reportseff
 ```
 
 will create command line bindings and install click.
+
+### Build and test the Great Lakes cost branch on a cluster
+
+Run these commands on a cluster login node where `sacct` is available. A compute
+node allocation is not required. The first setup requires network access to
+GitHub and PyPI.
+
+1. Confirm that Git and `curl` are available. A cluster Python module is not
+   needed because `uv` will install a self-contained Python in your account.
+
+   ```sh
+   git --version
+   curl --version
+   ```
+
+2. Install the standalone `uv` executable in your user account if it is not
+   already available. Installing `uv` this way avoids tying `uv` itself to a
+   module-provided Python.
+
+   ```sh
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   export PATH="$HOME/.local/bin:$PATH"
+   uv --version
+   ```
+
+3. Clone the fork and check out the cost-feature branch.
+
+   ```sh
+   git clone --branch feature/great-lakes-job-cost \
+     https://github.com/um-jglad/reportseff.git
+   cd reportseff
+   ```
+
+4. Install a self-contained, `uv`-managed Python. Explicitly use it for the
+   locked development environment so the environment does not depend on a
+   cluster Python module remaining loaded.
+
+   ```sh
+   uv python install 3.12
+   uv python find --managed-python 3.12
+   uv sync --locked --python 3.12 --managed-python
+   uv run pytest
+   ```
+
+5. Build a clean wheel and source archive. The artifacts are written to
+   `dist/`.
+
+   ```sh
+   uv build --clear --python 3.12
+   ls -lh dist/
+   ```
+
+6. Test the checkout against your own Slurm accounting data.
+
+   ```sh
+   uv run reportseff --version
+   uv run reportseff -u "$USER" --since d=7 --total-cost
+   uv run reportseff JOB_ID --format +Cost
+   ```
+
+   Replace `JOB_ID` with a completed Great Lakes job ID. Cost is unavailable for
+   running jobs, unsupported clusters or partitions, and incomplete accounting
+   records.
+
+7. Optionally install the built wheel as a persistent command. Because
+   `uv build --clear` leaves one wheel in `dist/`, the wildcard below resolves
+   to that wheel.
+
+   ```sh
+   uv tool install --force --python 3.12 --managed-python ./dist/*.whl
+   export PATH="$HOME/.local/bin:$PATH"
+   reportseff -u "$USER" --since d=7 --total-cost
+   ```
+
+   The `--managed-python` option is important on module-based clusters. Without
+   it, `uv` can create the tool environment with the currently loaded module's
+   Python. The installed command may then fail after that module is unloaded
+   because its `libpython` shared library is no longer on the library path.
+
+To rebuild after new changes are pushed:
+
+```sh
+git switch feature/great-lakes-job-cost
+git pull --ff-only
+uv python install 3.12
+uv sync --locked --python 3.12 --managed-python
+uv run pytest
+uv build --clear --python 3.12
+uv tool install --force --python 3.12 --managed-python ./dist/*.whl
+```
+
+If an earlier installation reports an error such as
+`libpython3.13.so.1.0: cannot open shared object file`, reinstall it with the
+managed interpreter:
+
+```sh
+uv python install 3.12
+uv tool uninstall reportseff
+uv tool install --python 3.12 --managed-python ./dist/*.whl
+reportseff --version
+```
 
 ### Sample Usage
 
@@ -249,15 +350,13 @@ directory to check for slurm outputs.
 is a function missing, please open an issue to discuss its merit!
 
 Bug reports, pull requests, and any feedback are welcome! Prior to submitting
-a pull request, be sure any new features have been tested and all unit tests
-are passing. In the cloned repo with
-[poetry](https://github.com/python-poetry/poetry#installation) installed:
+a pull request, be sure any new features have been tested and all checks are
+passing. In a cloned checkout with `uv` installed:
 
 ```sh
-poetry install
-poetry run pytest
-poetry run pre-commit install
-nox
+uv sync --locked
+uv run poe tests
+uv run poe checks
 ```
 
 ## Troubleshooting
