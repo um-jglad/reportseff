@@ -603,7 +603,7 @@ def test_renderer_formats_cost_in_table_and_parsable_output() -> None:
     ]
     assert_result_matches(
         renderer.format_jobs([job]),
-        ["JobID Cost", "123 $0.00"],
+        ["JobID Cost", "123 $0.00025046"],
     )
 
     renderer = output_renderer.OutputRenderer(
@@ -613,7 +613,7 @@ def test_renderer_formats_cost_in_table_and_parsable_output() -> None:
     )
     assert_result_matches(
         renderer.format_jobs([job]),
-        ["JobID|Cost", "123|$0.00"],
+        ["JobID|Cost", "123|$0.00025046"],
     )
 
 
@@ -622,11 +622,21 @@ def test_renderer_formats_cost_in_table_and_parsable_output() -> None:
     [
         (
             output_renderer.RenderOptions(total_cost=True),
-            ["JobID Cost", "123 $0.00", "124 $0.00", "Total $0.01"],
+            [
+                "JobID Cost",
+                "123 $0.00400741",
+                "124 $0.00400741",
+                "Total $0.00801482",
+            ],
         ),
         (
             output_renderer.RenderOptions(parsable=True, total_cost=True),
-            ["JobID|Cost", "123|$0.00", "124|$0.00", "Total|$0.01"],
+            [
+                "JobID|Cost",
+                "123|$0.00400741",
+                "124|$0.00400741",
+                "Total|$0.00801482",
+            ],
         ),
     ],
 )

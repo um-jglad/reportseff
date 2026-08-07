@@ -15,14 +15,14 @@ from reportseff.great_lakes_pricing import (
 @pytest.mark.parametrize(
     ("partition", "elapsed", "alloc_tres", "expected"),
     [
-        ("standard", "60", "cpu=2,mem=7G", "$0.00"),
-        ("debug", "120", "cpu=1,mem=28G", "$0.00"),
-        ("viz", "30", "cpu=2,mem=14G", "$0.00"),
-        ("largemem", "60", "cpu=1,mem=83.5G", "$0.00"),
-        ("gpu", "90", "cpu=20,mem=90G,gres/gpu=2", "$0.01"),
-        ("spgpu", "60", "cpu=8,mem=48G,gres/gpu:a40=1", "$0.00"),
-        ("gpu-rtx6000", "60", "cpu=32,mem=192G,gres/gpu=1", "$0.01"),
-        ("gpu_mig40", "60", "cpu=8,mem=250G,gres/gpu:a100_3g.20gb=1", "$0.01"),
+        ("standard", "60", "cpu=2,mem=7G", "$0.00050093"),
+        ("debug", "120", "cpu=1,mem=28G", "$0.00200370"),
+        ("viz", "30", "cpu=2,mem=14G", "$0.00025046"),
+        ("largemem", "60", "cpu=1,mem=83.5G", "$0.00154074"),
+        ("gpu", "90", "cpu=20,mem=90G,gres/gpu=2", "$0.00821736"),
+        ("spgpu", "60", "cpu=8,mem=48G,gres/gpu:a40=1", "$0.00361574"),
+        ("gpu-rtx6000", "60", "cpu=32,mem=192G,gres/gpu=1", "$0.00772203"),
+        ("gpu_mig40", "60", "cpu=8,mem=250G,gres/gpu:a100_3g.20gb=1", "$0.00547824"),
     ],
 )
 def test_estimate_cost_for_each_profile(
@@ -41,14 +41,14 @@ def test_estimate_cost_for_each_profile(
 @pytest.mark.parametrize(
     ("partition", "cpu_unit", "memory_unit", "one_unit", "two_units"),
     [
-        ("standard", "1", "7", "$0.00", "$0.00"),
-        ("debug", "1", "7", "$0.00", "$0.00"),
-        ("viz", "1", "7", "$0.00", "$0.00"),
-        ("largemem", "1", "41.75", "$0.00", "$0.00"),
-        ("gpu", "20", "90", "$0.00", "$0.01"),
-        ("spgpu", "4", "48", "$0.00", "$0.00"),
-        ("gpu-rtx6000", "16", "192", "$0.00", "$0.01"),
-        ("gpu_mig40", "8", "125", "$0.00", "$0.01"),
+        ("standard", "1", "7", "$0.00025046", "$0.00050093"),
+        ("debug", "1", "7", "$0.00025046", "$0.00050093"),
+        ("viz", "1", "7", "$0.00025046", "$0.00050093"),
+        ("largemem", "1", "41.75", "$0.00077037", "$0.00154074"),
+        ("gpu", "20", "90", "$0.00273912", "$0.00547824"),
+        ("spgpu", "4", "48", "$0.00180787", "$0.00361574"),
+        ("gpu-rtx6000", "16", "192", "$0.00386102", "$0.00772203"),
+        ("gpu_mig40", "8", "125", "$0.00273912", "$0.00547824"),
     ],
 )
 def test_cpu_memory_and_tied_costs(
@@ -74,10 +74,10 @@ def test_cpu_memory_and_tied_costs(
 @pytest.mark.parametrize(
     ("partition", "cpu_unit", "memory_unit", "expected"),
     [
-        ("gpu", "20", "90", "$0.01"),
-        ("spgpu", "4", "48", "$0.00"),
-        ("gpu-rtx6000", "16", "192", "$0.01"),
-        ("gpu_mig40", "8", "125", "$0.01"),
+        ("gpu", "20", "90", "$0.00547824"),
+        ("spgpu", "4", "48", "$0.00361574"),
+        ("gpu-rtx6000", "16", "192", "$0.00772203"),
+        ("gpu_mig40", "8", "125", "$0.00547824"),
     ],
 )
 def test_gpu_dominant_costs(
@@ -99,7 +99,7 @@ def test_estimate_cost_for_finished_states(state: str) -> None:
     """All finished job states are eligible for estimates."""
     assert (
         estimate_cost("greatlakes", state, "standard", "60", "cpu=1,mem=7G")
-        == "$0.00"
+        == "$0.00025046"
     )
 
 
@@ -113,7 +113,7 @@ def test_estimate_cost_zero_runtime() -> None:
     """A finished zero-runtime job has a zero-dollar estimate."""
     assert (
         estimate_cost("greatlakes", "FAILED", "standard", "0", "cpu=1,mem=7G")
-        == "$0.00"
+        == "$0.00000000"
     )
 
 
@@ -122,7 +122,7 @@ def test_estimate_cost_prefers_generic_gpu_count() -> None:
     alloc_tres = "cpu=20,mem=90G,gres/gpu=2,gres/gpu:v100=2"
     assert (
         estimate_cost("greatlakes", "COMPLETED", "gpu", "60", alloc_tres)
-        == "$0.01"
+        == "$0.00547824"
     )
 
 
@@ -131,7 +131,7 @@ def test_estimate_cost_sums_typed_gpu_counts() -> None:
     alloc_tres = "cpu=4,mem=48G,gres/gpu:a40=1,gres/gpu:a100=2"
     assert (
         estimate_cost("greatlakes", "COMPLETED", "spgpu", "60", alloc_tres)
-        == "$0.01"
+        == "$0.00542361"
     )
 
 
@@ -184,10 +184,10 @@ def test_pricing_profile_date() -> None:
 
 
 def test_unrounded_costs_are_summed_before_formatting() -> None:
-    """Small jobs can contribute to a total even when each displays as zero."""
+    """The total is calculated from raw costs rather than displayed values."""
     cost = calculate_cost(
         "greatlakes", "COMPLETED", "standard", "960", "cpu=1,mem=7G"
     )
     assert cost is not None
-    assert format_cost(cost) == "$0.00"
-    assert format_cost(cost + cost) == "$0.01"
+    assert format_cost(cost) == "$0.00400741"
+    assert format_cost(cost + cost) == "$0.00801482"

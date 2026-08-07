@@ -9,7 +9,7 @@ from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 PRICING_DATE = "2026-08-07"
 UNAVAILABLE = "---"
 GIB = Decimal(1024) ** 3
-MONEY_QUANTUM = Decimal("0.01")
+MONEY_QUANTUM = Decimal("0.00000001")
 MEMORY_RE = re.compile(r"(?P<amount>\d+(?:\.\d+)?)(?P<unit>[KMGTPE]?)")
 MEMORY_MULTIPLIERS = {
     "": Decimal(1),
@@ -68,7 +68,7 @@ def estimate_cost(
         alloc_tres: Allocated resources from ``AllocTRES``.
 
     Returns:
-        A dollar value rounded to the nearest cent, or ``---`` when an
+        A dollar value rounded to eight decimal places, or ``---`` when an
         estimate is unavailable.
     """
     return format_cost(
@@ -110,12 +110,12 @@ def calculate_cost(
 
 
 def format_cost(cost: Decimal | None) -> str:
-    """Format a cost to the nearest cent, or return the unavailable marker."""
+    """Format a cost to eight decimal places, or return the unavailable marker."""
     if cost is None:
         return UNAVAILABLE
 
     rendered = cost.quantize(MONEY_QUANTUM, rounding=ROUND_HALF_UP)
-    return f"${rendered:.2f}"
+    return f"${rendered:.8f}"
 
 
 def _parse_alloc_tres(alloc_tres: str) -> tuple[Decimal, Decimal, Decimal]:
