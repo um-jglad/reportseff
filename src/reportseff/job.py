@@ -11,6 +11,8 @@ import re
 from datetime import timedelta
 from typing import TYPE_CHECKING, Any, cast
 
+from .great_lakes_pricing import estimate_cost
+
 if TYPE_CHECKING:
     from collections.abc import Generator
 
@@ -268,6 +270,15 @@ class Job:
 
         if key == "Energy":
             return self.energy
+
+        if key == "Cost":
+            return estimate_cost(
+                str(self.other_entries.get("Cluster", "")),
+                self.state or "",
+                str(self.other_entries.get("Partition", "")),
+                str(self.other_entries.get("ElapsedRaw", "")),
+                str(self.other_entries.get("AllocTRES", "")),
+            )
 
         if key.casefold().startswith("max"):
             # need to render as human readable

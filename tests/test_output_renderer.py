@@ -365,6 +365,21 @@ def test_renderer_correct_columns(renderer: OutputRenderer) -> None:
         ["JobID", "JobIDRaw", "State", "AdminComment"]
     )
 
+    renderer.query_columns = ["Cost"]
+    renderer.correct_columns()
+    assert sorted(renderer.query_columns) == sorted(
+        [
+            "AdminComment",
+            "AllocTRES",
+            "Cluster",
+            "ElapsedRaw",
+            "JobID",
+            "JobIDRaw",
+            "Partition",
+            "State",
+        ]
+    )
+
     renderer.query_columns = ["JobID", "ReqMem", "MemEff"]
     renderer.correct_columns()
     assert sorted(renderer.query_columns) == sorted(
@@ -548,6 +563,60 @@ def test_format_jobs_single_str(some_jobs: list[Job]) -> None:
     ]
 
 
+def test_renderer_formats_cost_in_table_and_parsable_output() -> None:
+    """Cost is case-insensitive and uses existing table and parsable formatting."""
+    valid_titles = [
+        "AllocTRES",
+        "Cluster",
+        "ElapsedRaw",
+        "JobID",
+        "JobIDRaw",
+        "Partition",
+        "State",
+    ]
+    job = Job("123", "123", None)
+    job.update(
+        {
+            "AllocTRES": "cpu=1,mem=7G",
+            "Cluster": "greatlakes",
+            "ElapsedRaw": "60",
+            "JobID": "123",
+            "Partition": "standard",
+            "State": "COMPLETED",
+        }
+    )
+
+    renderer = output_renderer.OutputRenderer(
+        valid_titles,
+        output_renderer.RenderOptions(),
+        "JobID,cOsT",
+    )
+    assert renderer.query_columns == [
+        "AdminComment",
+        "AllocTRES",
+        "Cluster",
+        "ElapsedRaw",
+        "JobID",
+        "JobIDRaw",
+        "Partition",
+        "State",
+    ]
+    assert_result_matches(
+        renderer.format_jobs([job]),
+        ["JobID Cost", "123 $0.000250"],
+    )
+
+    renderer = output_renderer.OutputRenderer(
+        valid_titles,
+        output_renderer.RenderOptions(parsable=True),
+        "JobID,Cost",
+    )
+    assert_result_matches(
+        renderer.format_jobs([job]),
+        ["JobID|Cost", "123|$0.000250"],
+    )
+
+
 def test_formatter_init() -> None:
     """Column formatter parses format tokens correctly."""
     # simple name
@@ -587,8 +656,7 @@ def test_formatter_init() -> None:
     with pytest.raises(
         ValueError,
         match=re.escape(
-            "Unable to parse format token 'test%a', "
-            "did you forget to wrap in quotes?"
+            "Unable to parse format token 'test%a', did you forget to wrap in quotes?"
         ),
     ):
         result = output_renderer.ColumnFormatter("test%a")
@@ -597,7 +665,7 @@ def test_formatter_init() -> None:
     with pytest.raises(
         ValueError,
         match=re.escape(
-            "Unable to parse format token 'test%', " "did you forget to wrap in quotes?"
+            "Unable to parse format token 'test%', did you forget to wrap in quotes?"
         ),
     ):
         result = output_renderer.ColumnFormatter("test%")

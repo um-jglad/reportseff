@@ -83,6 +83,7 @@ class OutputRenderer:
             "GPUMem": [],
             "GPUEff": [],
             "Energy": ["TRESUsageOutAve"],
+            "Cost": ["Cluster", "State", "Partition", "ElapsedRaw", "AllocTRES"],
         }
 
         # build formatters

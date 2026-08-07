@@ -39,7 +39,7 @@ MAX_ENTRIES_TO_ECHO = 20
     "format_str",
     default="JobID%>,State,Elapsed%>,TimeEff,CPUEff,MemEff",
     help="Comma-separated list of columns to include. Options "
-    "are any valid sacct input along with CPUEff, MemEff, Energy, "
+    "are any valid sacct input along with CPUEff, MemEff, Energy, Cost, "
     "and TimeEff.  In systems with jobstat caching, GPU usage can be "
     "added with GPUEff, GPUMem or GPU (for both). "
     "A width and alignment may optionally be provided "

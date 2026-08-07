@@ -205,7 +205,17 @@ directory to check for slurm outputs.
 - `--format`: Provide a comma separated list of columns to produce. Prefixing the
   argument with `+` adds the specified values to the defaults.  Values can
   be any valid column name to sacct and the custom efficiency values: TimeEff,
-  cpuEff, MemEff.  Can also optionally set alignment (<, ^, >) and maximum width.
+  CPUEff, MemEff, Energy, and Cost. `Cost` estimates the undiscounted Great Lakes
+  list price for finished jobs; for example, `reportseff -u "$USER" --format +Cost`.
+  [Rates and resource units](https://its.umich.edu/advanced-research-computing/high-performance-computing/great-lakes/rates)
+  are built in as published on 2026-08-07 for the `standard`, `debug`, `viz`,
+  `largemem`, `gpu`, `spgpu`, `gpu-rtx6000`, and `gpu_mig40` partitions. Following
+  the [Great Lakes billing policy](https://documentation.its.umich.edu/arc-hpc/greatlakes/policies),
+  the estimate uses actual elapsed time and the maximum weighted CPU, memory, or
+  GPU allocation. It does not account for UMRCP allocations, unit cost sharing,
+  shortcodes, refunds, or invoice rounding. Unsupported clusters and partitions,
+  incomplete resource data, and running or pending jobs display `---`. Can also
+  optionally set alignment (<, ^, >) and maximum width.
   Default is center-aligned with a width of the maximum column entry.  For
   example, `--format 'jobid%>,state%10,memeff%<5'` produces 3 columns with:
   - JobId aligned right, width set automatically
