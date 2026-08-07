@@ -221,6 +221,10 @@ directory to check for slurm outputs.
   - JobId aligned right, width set automatically
   - State with width 10 (center aligned by default)
   - MemEff aligned left, width 5
+- `--total-cost`: Append the total available cost of the displayed jobs. This
+  automatically adds the `Cost` column when needed. Jobs whose cost is unavailable
+  are excluded from the total. The unrounded job costs are summed before the final
+  total is rounded to cents.
 - `--slurm-format`: The filename pattern passed to sbatch during job submission.
   Overrides the default regex for job id parsing from filenames.  E.g. to match
   filenames like `123456.out` set `--slurm-format %j.out`.

@@ -148,6 +148,12 @@ MAX_ENTRIES_TO_ECHO = 20
     help="Only include array jobs with at least this many tasks. "
     "Non-array jobs are always included. Set to 0 to include all jobs (default).",
 )
+@click.option(
+    "--total-cost",
+    is_flag=True,
+    default=False,
+    help="Append the total available cost of the displayed jobs.",
+)
 @click.version_option(version=__version__)
 @click.argument("jobs", nargs=-1)
 def main(**kwargs: Any) -> None:
@@ -183,6 +189,7 @@ def get_jobs(args: ReportseffParameters) -> tuple[str, int]:
         node_and_gpu=args.node_and_gpu,
         parsable=args.parsable,
         delimiter=args.delimiter,
+        total_cost=args.total_cost,
     )
 
     inquirer.set_state(args.state)
@@ -237,13 +244,14 @@ def get_jobs(args: ReportseffParameters) -> tuple[str, int]:
     return renderer.format_jobs(found_jobs), len(found_jobs)
 
 
-def get_implementation(
+def get_implementation(  # noqa: PLR0913
     format_str: str,
     *,
     node: bool = False,
     node_and_gpu: bool = False,
     parsable: bool = False,
     delimiter: str = " ",
+    total_cost: bool = False,
 ) -> tuple[BaseInquirer, OutputRenderer]:
     """Get system-specific objects.
 
@@ -253,6 +261,7 @@ def get_implementation(
         node_and_gpu: control if node and gpu stats are displayed
         parsable: produce output with a delimiter separating columns
         delimiter: delimiter used for parsable output
+        total_cost: append the total available job cost
 
     Returns:
         A db_inqurirer
@@ -267,6 +276,7 @@ def get_implementation(
                 gpu=node_and_gpu,
                 parsable=parsable,
                 delimiter=delimiter,
+                total_cost=total_cost,
             ),
             format_str,
         )

@@ -303,6 +303,19 @@ def test_format_add(mocker: MockerFixture) -> None:
 
 
 @pytest.mark.usefixtures("_mock_inquirer")
+def test_total_cost_option(mocker: MockerFixture) -> None:
+    """The total-cost flag is passed into the report parameters."""
+    mocker.patch("reportseff.console.which", return_value=True)
+    runner = CliRunner()
+    mock_jobs = mocker.patch("reportseff.console.get_jobs", return_value=("Testing", 1))
+
+    result = runner.invoke(console.main, ["--no-color", "--total-cost"])
+
+    assert result.exit_code == 0
+    assert mock_jobs.call_args[0][0].total_cost is True
+
+
+@pytest.mark.usefixtures("_mock_inquirer")
 def test_since(mocker: MockerFixture, console_jobs: dict[str, str]) -> None:
     """Can limit outputs by time since argument."""
     mocker.patch("reportseff.console.which", return_value=True)

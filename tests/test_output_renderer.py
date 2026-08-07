@@ -617,6 +617,66 @@ def test_renderer_formats_cost_in_table_and_parsable_output() -> None:
     )
 
 
+@pytest.mark.parametrize(
+    ("options", "expected"),
+    [
+        (
+            output_renderer.RenderOptions(total_cost=True),
+            ["JobID Cost", "123 $0.00", "124 $0.00", "Total $0.01"],
+        ),
+        (
+            output_renderer.RenderOptions(parsable=True, total_cost=True),
+            ["JobID|Cost", "123|$0.00", "124|$0.00", "Total|$0.01"],
+        ),
+    ],
+)
+def test_renderer_totals_unrounded_costs(
+    options: output_renderer.RenderOptions,
+    expected: list[str],
+) -> None:
+    """The footer sums raw costs and works for table and parsable output."""
+    valid_titles = [
+        "AllocTRES",
+        "Cluster",
+        "ElapsedRaw",
+        "JobID",
+        "JobIDRaw",
+        "Partition",
+        "State",
+    ]
+    jobs = []
+    for job_id in ("123", "124"):
+        job = Job(job_id, job_id, None)
+        job.update(
+            {
+                "AllocTRES": "cpu=1,mem=7G",
+                "Cluster": "greatlakes",
+                "ElapsedRaw": "960",
+                "JobID": job_id,
+                "Partition": "standard",
+                "State": "COMPLETED",
+            }
+        )
+        jobs.append(job)
+
+    renderer = output_renderer.OutputRenderer(valid_titles, options, "JobID")
+    assert renderer.formatters == [
+        output_renderer.ColumnFormatter("JobID"),
+        output_renderer.ColumnFormatter("Cost"),
+    ]
+    assert_result_matches(renderer.format_jobs(jobs), expected)
+
+
+def test_renderer_total_is_unavailable_without_available_costs() -> None:
+    """An empty or wholly unsupported result does not report a zero total."""
+    renderer = output_renderer.OutputRenderer(
+        min_required,
+        output_renderer.RenderOptions(total_cost=True),
+        "JobID,Cost",
+    )
+    assert_result_matches(renderer.format_jobs([]), ["JobID Cost", "Total ---"])
+
+
 def test_formatter_init() -> None:
     """Column formatter parses format tokens correctly."""
     # simple name

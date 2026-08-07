@@ -71,20 +71,33 @@ def estimate_cost(
         A dollar value rounded to the nearest cent, or ``---`` when an
         estimate is unavailable.
     """
+    return format_cost(
+        calculate_cost(cluster, state, partition, elapsed_seconds, alloc_tres)
+    )
+
+
+def calculate_cost(
+    cluster: str,
+    state: str,
+    partition: str,
+    elapsed_seconds: str,
+    alloc_tres: str,
+) -> Decimal | None:
+    """Return an unrounded Great Lakes list-price cost when available."""
     if state.casefold() in {"running", "pending"}:
-        return UNAVAILABLE
+        return None
     if cluster.casefold() != "greatlakes":
-        return UNAVAILABLE
+        return None
 
     profile = PRICING_PROFILES.get(partition.casefold())
     if profile is None:
-        return UNAVAILABLE
+        return None
 
     try:
         elapsed_minutes = _parse_nonnegative_decimal(elapsed_seconds) / Decimal(60)
         cpus, memory_gib, gpus = _parse_alloc_tres(alloc_tres)
     except ValueError:
-        return UNAVAILABLE
+        return None
 
     weighted_resources = [
         cpus / profile.cpu_unit,
@@ -93,7 +106,14 @@ def estimate_cost(
     if profile.gpu_unit is not None:
         weighted_resources.append(gpus / profile.gpu_unit)
 
-    cost = elapsed_minutes * profile.rate * max(weighted_resources)
+    return elapsed_minutes * profile.rate * max(weighted_resources)
+
+
+def format_cost(cost: Decimal | None) -> str:
+    """Format a cost to the nearest cent, or return the unavailable marker."""
+    if cost is None:
+        return UNAVAILABLE
+
     rendered = cost.quantize(MONEY_QUANTUM, rounding=ROUND_HALF_UP)
     return f"${rendered:.2f}"
 

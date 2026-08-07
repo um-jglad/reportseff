@@ -11,10 +11,11 @@ import re
 from datetime import timedelta
 from typing import TYPE_CHECKING, Any, cast
 
-from .great_lakes_pricing import estimate_cost
+from .great_lakes_pricing import calculate_cost, format_cost
 
 if TYPE_CHECKING:
     from collections.abc import Generator
+    from decimal import Decimal
 
 
 multiple_map = {
@@ -272,13 +273,7 @@ class Job:
             return self.energy
 
         if key == "Cost":
-            return estimate_cost(
-                str(self.other_entries.get("Cluster", "")),
-                self.state or "",
-                str(self.other_entries.get("Partition", "")),
-                str(self.other_entries.get("ElapsedRaw", "")),
-                str(self.other_entries.get("AllocTRES", "")),
-            )
+            return format_cost(self.get_cost())
 
         if key.casefold().startswith("max"):
             # need to render as human readable
@@ -293,6 +288,16 @@ class Job:
             return render_num(entry)
 
         return self.other_entries.get(key, "---")
+
+    def get_cost(self) -> Decimal | None:
+        """Return the unrounded job cost when one can be estimated."""
+        return calculate_cost(
+            str(self.other_entries.get("Cluster", "")),
+            self.state or "",
+            str(self.other_entries.get("Partition", "")),
+            str(self.other_entries.get("ElapsedRaw", "")),
+            str(self.other_entries.get("AllocTRES", "")),
+        )
 
     def _get_mem_entry(self) -> Any:
         """Get the memory entry."""

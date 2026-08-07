@@ -6,10 +6,12 @@ import copy
 import itertools
 import re
 from dataclasses import dataclass
+from decimal import Decimal
 from typing import TYPE_CHECKING, Any, cast
 
 import click
 
+from .great_lakes_pricing import format_cost
 from .job import Job, state_colors
 
 if TYPE_CHECKING:
@@ -42,12 +44,14 @@ class RenderOptions:
         gpu: in addition to node, should each GPU be reported
         parsable: should output be rendered in a parsable format
         delimiter: string to use for separating columns when parsable is set
+        total_cost: append a row containing the total available job cost
     """
 
     node: bool = False
     gpu: bool = False
     parsable: bool = False
     delimiter: str = "|"
+    total_cost: bool = False
 
     def __post_init__(self) -> None:
         """Post init method to handle delimiter and parsable."""
@@ -88,6 +92,8 @@ class OutputRenderer:
 
         # build formatters
         self.formatters = build_formatters(format_str)
+        if self.options.total_cost and "Cost" not in self.formatters:
+            self.formatters.append(ColumnFormatter("Cost"))
 
         # validate with titles and derived keys
         self.query_columns = self.validate_formatters(
@@ -144,6 +150,46 @@ class OutputRenderer:
             self.formatters.append(formatter)
 
         return result
+
+    def _append_total_cost(self, result: str, jobs: list[Job]) -> str:
+        """Append a footer summing all available, unrounded job costs."""
+        costs = [cost for job in jobs if (cost := job.get_cost()) is not None]
+        total = sum(costs, start=Decimal(0)) if costs else None
+        rendered_total = format_cost(total)
+
+        label_index = next(
+            (
+                index
+                for index, formatter in enumerate(self.formatters)
+                if formatter.title == "JobID"
+            ),
+            None,
+        )
+        if label_index is None:
+            label_index = next(
+                (
+                    index
+                    for index, formatter in enumerate(self.formatters)
+                    if formatter.title != "Cost"
+                ),
+                None,
+            )
+
+        if label_index is None:
+            footer = f"Total Cost: {rendered_total}"
+        else:
+            footer = self.options.delimiter.join(
+                formatter.format_entry(
+                    rendered_total
+                    if formatter.title == "Cost"
+                    else "Total"
+                    if index == label_index
+                    else ""
+                )
+                for index, formatter in enumerate(self.formatters)
+            ).rstrip()
+
+        return f"{result}\n{footer}" if result else footer
 
     def correct_columns(self) -> None:
         """Expand derived values of query columns and remove duplicates."""
@@ -215,6 +261,9 @@ class OutputRenderer:
                 delimiter.join(fmt.format_job(job) for fmt in self.formatters).rstrip()
                 for job in jobs
             )
+
+        if self.options.total_cost:
+            result = self._append_total_cost(result, jobs)
 
         return result
 

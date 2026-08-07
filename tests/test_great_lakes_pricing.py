@@ -4,7 +4,12 @@ from __future__ import annotations
 
 import pytest
 
-from reportseff.great_lakes_pricing import PRICING_DATE, estimate_cost
+from reportseff.great_lakes_pricing import (
+    PRICING_DATE,
+    calculate_cost,
+    estimate_cost,
+    format_cost,
+)
 
 
 @pytest.mark.parametrize(
@@ -176,3 +181,13 @@ def test_estimate_cost_rejects_incomplete_or_malformed_resources(
 def test_pricing_profile_date() -> None:
     """The built-in rates have an explicit snapshot date."""
     assert PRICING_DATE == "2026-08-07"
+
+
+def test_unrounded_costs_are_summed_before_formatting() -> None:
+    """Small jobs can contribute to a total even when each displays as zero."""
+    cost = calculate_cost(
+        "greatlakes", "COMPLETED", "standard", "960", "cpu=1,mem=7G"
+    )
+    assert cost is not None
+    assert format_cost(cost) == "$0.00"
+    assert format_cost(cost + cost) == "$0.01"
