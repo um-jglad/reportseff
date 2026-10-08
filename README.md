@@ -1,11 +1,48 @@
-[![Tests](https://github.com/troycomi/reportseff/workflows/Tests/badge.svg)](https://github.com/troycomi/reportseff/actions?workflow=Tests)
-[![codecov](https://codecov.io/gh/troycomi/reportseff/branch/main/graph/badge.svg)](https://codecov.io/gh/troycomi/reportseff)
-[![PyPI](https://img.shields.io/pypi/v/reportseff.svg)](https://pypi.org/project/reportseff/)
-[![DOI](https://img.shields.io/badge/doi-10.1145/3569951.3604396-blue.svg?style=flat&labelColor=whitesmoke&logo=data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAAB8AAAAfCAYAAAAfrhY5AAAJsklEQVR42qWXd1DTaRrHf%2BiB2Hdt5zhrAUKz4IKEYu9IGiGFFJJQ0gkJCAKiWFDWBRdFhCQUF3UVdeVcRQEBxUI3yY9iEnQHb3bdW1fPubnyz%2F11M7lvEHfOQee2ZOYzPyDv%2B3yf9%2Fk95YX4fx%2BltfUt08GcFEuPR4U9hDDZ%2FVngIlhb%2FSiI6InkTgLzgDcgfvtnovhH4BzoVlrbwr55QnhCtBW4QHXnFrZbPBaQoBh4%2FSYH2EnpBEtqcDMVzB93wA%2F8AFwa23XFGcc8CkT3mxz%2BfXWtq9T9IQlLIXYEuHojudb%2BCM7Hgdq8ydi%2FAHiBXyY%2BLjwFlAEnS6Jnar%2FvnQVhvdzasad0eKvWZKe8hvDB2ofLZ%2FZEcWsh%2BhyIuyO5Bxs2iZIE4nRv7NWAb0EO8AC%2FWPxjYAWuOEX2MSXZVgPxzmRL3xKz3ScGpx6p6QnOx4mDIFqO0w6Q4fEhO5IzwxlSwyD2FYHzwAW%2BAZ4fEsf74gCumykwNHskLM7taQxLYjjIyy8MUtraGhTWdkfhkFJqtvuVl%2F9l2ZquDfEyrH8B0W06nnpH3JtIyRGpH1iJ6SfxDIHjRXHJmdQjLpfHeN54gnfFx4W9QRnovx%2FN20aXZeTD2J84hn3%2BqoF2Tqr14VqTPUCIcP%2B5%2Fly4qC%2BUL3sYxSvNj1NwsVYPsWdMUfomsdkYm3Tj0nbV0N1wRKwFe1MgKACDIBdMAhPE%2FwicwNWxll8Ag40w%2BFfhibJkGHmutjYeQ8gVlaN%2BjO51nDysa9TwNUFMqaGbKdRJZFfOJSp6mkRKsv0rRIpEVWjAvyFkxNOEpwvcAVPfEe%2Bl8ojeNTx3nXLBcWRrYGxSRjDEk0VlpxYrbe1ZmaQ5xuT0u3r%2B2qe5j0J5uytiZPGsRL2Jm32AldpxPUNJ3jmmsN4x62z1cXrbedXBQf2yvIFCeZrtyicZZG2U2nrrBJzYorI2EXLrvTfCSB43s41PKEvbZDEfQby6L4JTj%2FfIwam%2B4%2BwucBu%2BDgNK05Nle1rSt9HvR%2FKPC4U6LTfvUIaip1mjIa8fPzykii23h2eanT57zQ7fsyYH5QjywwlooAUcAdOh5QumgTHx6aAO7%2FL52eaQNEShrxfhL6albEDmfhGflrsT4tps8gTHNOJbeDeBlt0WJWDHSgxs6cW6lQqyg1FpD5ZVDfhn1HYFF1y4Eiaqa18pQf3zzYMBhcanlBjYfgWNayAf%2FASOgklu8bmgD7hADrk4cRlOL7NSOewEcbqSmaivT33QuFdHXj5sdvjlN5yMDrAECmdgDWG2L8P%2BAKLs9ZLZ7dJda%2BB4Xl84t7QvnKfvpXJv9obz2KgK8dXyqISyV0sXGZ0U47hOA%2FAiigbEMECJxC9aoKp86re5O5prxOlHkcksutSQJzxZRlPZmrOKhsQBF5zEZKybUC0vVjG8PqOnhOq46qyDTDnj5gZBriWCk4DvXrudQnXQmnXblebhAC2cCB6zIbM4PYgGl0elPSgIf3iFEA21aLdHYLHUQuVkpgi02SxFdrG862Y8ymYGMvXDzUmiX8DS5vKZyZlGmsSgQqfLub5RyLNS4zfDiZc9Edzh%2FtCE%2BX8j9k%2FqWB071rcZyMImne1SLkL4GRw4UPHMV3jjwEYpPG5uW5fAEot0aTSJnsGAwHJi2nvF1Y5OIqWziVCQd5NT7t6Q8guOSpgS%2Fa1dSRn8JGGaCD3BPXDyQRG4Bqhu8XrgAp0yy8DMSvvyVXDgJcJTcr1wQ2BvFKf65jqhvmxXUuDpGBlRvV36XvGjQzLi8KAKT2lYOnmxQPGorURSV0NhyTIuIyqOmKTMhQ%2BieEsgOgpc4KBbfDM4B3SIgFljvfHF6cef7qpyLBXAiQcXvg5l3Iunp%2FWv4dH6qFziO%2BL9PbrimQ9RY6MQphEfGUpOmma7KkGzuS8sPUFnCtIYcKCaI9EXo4HlQLgGrBjbiK5EqMj2AKWt9QWcIFMtnVvQVDQV9lXJJqdPVtUQpbh6gCI2Ov1nvZts7yYdsnvRgxiWFOtNJcOMVLn1vgptVi6qrNiFOfEjHCDB3J%2BHDLqUB77YgQGwX%2Fb1eYna3hGKdlqJKIyiE4nSbV8VFgxmxR4b5mVkkeUhMgs5YTi4ja2XZ009xJRHdkfwMi%2BfocaancuO7h%2FMlcLOa0V%2FSw6Dq47CumRQAKhgbOP8t%2BMTjuxjJGhXCY6XpmDDFqWlVYbQ1aDJ5Cptdw4oLbf3Ck%2BdWkVP0LpH7s9XLPXI%2FQX8ws%2Bj2In63IcRvOOo%2BTTjiN%2BlssfRsanW%2B3REVKoavBOAPTXABW4AL7e4NygHdpAKBscmlDh9Jysp4wxbnUNna3L3xBvyE1jyrGIkUHaqQMuxhHElV6oj1picvgL1QEuS5PyZTEaivqh5vUCKJqOuIgPFGESns8kyFk7%2FDxyima3cYxi%2FYOQCj%2F%2B9Ms2Ll%2Bhn4FmKnl7JkGXQGDKDAz9rUGL1TIlBpuJr9Be2JjK6qPzyDg495UxXYF7JY1qKimw9jWjF0iV6DRIqE%2B%2FeWG0J2ofmZTk0mLYVd4GLiFCOoKR0Cg727tWq981InYynvCuKW43aXgEjofVbxIqrm0VL76zlH3gQzWP3R3Bv9oXxclrlO7VVtgBRpSP4hMFWJ8BrUSBCJXC07l40X4jWuvtc42ofNCxtlX2JH6bdeojXgTh5TxOBKEyY5wvBE%2BACh8BtOPNPkApjoxi5h%2B%2FFMQQNpWvZaMH7MKFu5Ax8HoCQdmGkJrtnOiLHwD3uS5y8%2F2xTSDrE%2F4PT1yqtt6vGe8ldMBVMEPd6KwqiYECHDlfbvzphcWP%2BJiZuL5swoWQYlS%2Br7Yu5mNUiGD2retxBi9fl6RDGn4Ti9B1oyYy%2BMP5G87D%2FCpRlvdnuy0PY6RC8BzTA40NXqckQ9TaOUDywkYsudxJzPgyDoAWn%2BB6nEFbaVxxC6UXjJiuDkW9TWq7uRBOJocky9iMfUhGpv%2FdQuVVIuGjYqACbXf8aa%2BPeYNIHZsM7l4s5gAQuUAzRUoT51hnH3EWofXf2vkD5HJJ33vwE%2FaEWp36GHr6GpMaH4AAPuqM5eabH%2FhfG9zcCz4nN6cPinuAw6IHwtvyB%2FdO1toZciBaPh25U0ducR2PI3Zl7mokyLWKkSnEDOg1x5fCsJE9EKhH7HwFNhWMGMS7%2BqxyYsbHHRUDUH4I%2FAheQY7wujJNnFUH4KdCju83riuQeHU9WEqNzjsJFuF%2FdTDAZ%2FK7%2F1WaAU%2BAWymT59pVMT4g2AxcwNa0XEBDdBDpAPvgDIH73R25teeuAF5ime2Ul0OUIiG4GpSAEJeYW9wDTf43wfwHgHLKJoPznkwAAAABJRU5ErkJggg%3D%3D)](https://doi.org/10.1145/3569951.3604396)
+[![Tests](https://github.com/um-jglad/reportseff/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/um-jglad/reportseff/actions/workflows/tests.yml)
 
 # `reportseff`
 
 > A python script for tabular display of slurm efficiency information
+
+This is a University of Michigan Great Lakes-focused fork of
+[`reportseff`](https://github.com/troycomi/reportseff). It keeps the upstream
+efficiency reporting workflow and adds Great Lakes-specific job cost
+estimation.
+
+## UM Great Lakes features
+
+- Add the `Cost` column to reports with `--format +Cost`.
+- Append report totals with `--total-cost`.
+- Supported Great Lakes partitions: `standard`, `debug`, `viz`, `largemem`,
+  `gpu`, `spgpu`, `gpu-rtx6000`, and `gpu_mig40`.
+- Cost estimates use actual elapsed time and the maximum weighted CPU, memory,
+  or GPU allocation.
+- Cost is unavailable (`---`) for running or pending jobs, unsupported clusters
+  or partitions, incomplete accounting data, and missing resource information.
+- Estimates use published Great Lakes list rates and exclude UMRCP allocations,
+  unit-cost sharing, shortcodes, refunds, and invoice rounding.
+- Built-in rates are a snapshot published on August 7, 2026 and may require
+  updates when rates change.
+
+### Great Lakes examples
+
+Show recent jobs for your user with cost:
+
+```sh
+reportseff -u "$USER" --since d=7 --format +Cost
+```
+
+Show one completed job with cost:
+
+```sh
+reportseff JOB_ID --format +Cost
+```
+
+Show a report with total estimated cost:
+
+```sh
+reportseff -u "$USER" --since d=7 --total-cost
+```
 
 ![Example](https://github.com/troycomi/reportseff/raw/main/imgs/example.png)
 
@@ -39,21 +76,121 @@ performed in a single call to `sacct` and should have similar performance.
 Multi-node and GPU utilization is acquired from information contained in the
 `AdminComment` field, as generated by `jobstats`.
 
+### Citation
+
+The upstream `reportseff` project is described in
+[doi:10.1145/3569951.3604396](https://doi.org/10.1145/3569951.3604396).
+
 ## Usage
 
 ### Installation
 
-`reportseff` runs on python >= 3.6.
+`reportseff` runs on Python >= 3.10.
 The only external dependency is click (>= 6.7).
-Calling
+This fork is not published to PyPI; `pip install reportseff` installs the
+upstream package without the Great Lakes cost features. Build it from source
+using the cluster instructions below.
+
+### Build and test the Great Lakes cost branch on a cluster
+
+Run these commands on a cluster login node where `sacct` is available. A compute
+node allocation is not required. The first setup requires network access to
+GitHub and PyPI.
+
+1. Confirm that Git and `curl` are available. A cluster Python module is not
+   needed because `uv` will install a self-contained Python in your account.
+
+   ```sh
+   git --version
+   curl --version
+   ```
+
+2. Install the standalone `uv` executable in your user account if it is not
+   already available. Installing `uv` this way avoids tying `uv` itself to a
+   module-provided Python.
+
+   ```sh
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   export PATH="$HOME/.local/bin:$PATH"
+   uv --version
+   ```
+
+3. Clone the fork and check out the cost-feature branch.
+
+   ```sh
+   git clone --branch feature/great-lakes-job-cost \
+     https://github.com/um-jglad/reportseff.git
+   cd reportseff
+   ```
+
+4. Install a self-contained, `uv`-managed Python. Explicitly use it for the
+   locked development environment so the environment does not depend on a
+   cluster Python module remaining loaded.
+
+   ```sh
+   uv python install 3.12
+   uv python find --managed-python 3.12
+   uv sync --locked --python 3.12 --managed-python
+   uv run pytest
+   ```
+
+5. Build a clean wheel and source archive. The artifacts are written to
+   `dist/`.
+
+   ```sh
+   uv build --clear --python 3.12
+   ls -lh dist/
+   ```
+
+6. Test the checkout against your own Slurm accounting data.
+
+   ```sh
+   uv run reportseff --version
+   uv run reportseff -u "$USER" --since d=7 --total-cost
+   uv run reportseff JOB_ID --format +Cost
+   ```
+
+   Replace `JOB_ID` with a completed Great Lakes job ID. Cost is unavailable for
+   running jobs, unsupported clusters or partitions, and incomplete accounting
+   records.
+
+7. Optionally install the built wheel as a persistent command. Because
+   `uv build --clear` leaves one wheel in `dist/`, the wildcard below resolves
+   to that wheel.
+
+   ```sh
+   uv tool install --force --python 3.12 --managed-python ./dist/*.whl
+   export PATH="$HOME/.local/bin:$PATH"
+   reportseff -u "$USER" --since d=7 --total-cost
+   ```
+
+   The `--managed-python` option is important on module-based clusters. Without
+   it, `uv` can create the tool environment with the currently loaded module's
+   Python. The installed command may then fail after that module is unloaded
+   because its `libpython` shared library is no longer on the library path.
+
+To rebuild after new changes are pushed:
 
 ```sh
-pip install --user reportseff
-# OR
-pipx install reportseff
+git switch feature/great-lakes-job-cost
+git pull --ff-only
+uv python install 3.12
+uv sync --locked --python 3.12 --managed-python
+uv run pytest
+uv build --clear --python 3.12
+uv tool install --force --python 3.12 --managed-python ./dist/*.whl
 ```
 
-will create command line bindings and install click.
+If an earlier installation reports an error such as
+`libpython3.13.so.1.0: cannot open shared object file`, reinstall it with the
+managed interpreter:
+
+```sh
+uv python install 3.12
+uv tool uninstall reportseff
+uv tool install --python 3.12 --managed-python ./dist/*.whl
+reportseff --version
+```
 
 ### Sample Usage
 
@@ -202,15 +339,23 @@ directory to check for slurm outputs.
 - `--not-state/-S`: Output only jobs with states not matching any of the provided options.
   Accepts comma separated values of job codes (e.g. 'R') or full names
   (e.g. RUNNING).  Case insensitive.
-- `--format`: Provide a comma separated list of columns to produce. Prefixing the
-  argument with `+` adds the specified values to the defaults.  Values can
+- `--format`: Provide a comma separated list of columns to produce. Prefixing
+  the argument with `+` adds the specified values to the defaults. Values can
   be any valid column name to sacct and the custom efficiency values: TimeEff,
-  cpuEff, MemEff.  Can also optionally set alignment (<, ^, >) and maximum width.
+  CPUEff, MemEff, Energy, and Cost. For `Cost` behavior and supported Great
+  Lakes partitions, see [UM Great Lakes features](#um-great-lakes-features).
+  Can also optionally set alignment (<, ^, >) and maximum width.
   Default is center-aligned with a width of the maximum column entry.  For
   example, `--format 'jobid%>,state%10,memeff%<5'` produces 3 columns with:
   - JobId aligned right, width set automatically
   - State with width 10 (center aligned by default)
   - MemEff aligned left, width 5
+- `--total-cost`: Append the total available cost of the displayed jobs. This
+  automatically adds the `Cost` column when needed. Jobs whose cost is
+  unavailable are excluded from the total. The unrounded job costs are summed
+  before the final total is rounded to eight decimal places. For details on
+  `Cost` availability and assumptions, see
+  [UM Great Lakes features](#um-great-lakes-features).
 - `--slurm-format`: The filename pattern passed to sbatch during job submission.
   Overrides the default regex for job id parsing from filenames.  E.g. to match
   filenames like `123456.out` set `--slurm-format %j.out`.
@@ -235,26 +380,16 @@ directory to check for slurm outputs.
 is a function missing, please open an issue to discuss its merit!
 
 Bug reports, pull requests, and any feedback are welcome! Prior to submitting
-a pull request, be sure any new features have been tested and all unit tests
-are passing. In the cloned repo with
-[poetry](https://github.com/python-poetry/poetry#installation) installed:
+a pull request, be sure any new features have been tested and all checks are
+passing. In a cloned checkout with `uv` installed:
 
 ```sh
-poetry install
-poetry run pytest
-poetry run pre-commit install
-nox
+uv sync --locked
+uv run poe tests
+uv run poe checks
 ```
 
 ## Troubleshooting
-
-### I can't install, what is pip?
-
-[pip](https://pip.pypa.io/en/stable/) is the package installer for python.  If
-you get an error that pip isn't found, look for a python/anaconda/conda module.
-[pipx](https://pypa.github.io/pipx/) ensures that each application is installed
-in an isolated environment.  This resolves issues of dependency versions and
-allows applications to be run from any environment.
 
 ### The output has no color with many jobs!
 
