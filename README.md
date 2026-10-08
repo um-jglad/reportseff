@@ -391,14 +391,6 @@ uv run poe checks
 
 ## Troubleshooting
 
-### I can't install, what is pip?
-
-[pip](https://pip.pypa.io/en/stable/) is the package installer for python.  If
-you get an error that pip isn't found, look for a python/anaconda/conda module.
-[pipx](https://pypa.github.io/pipx/) ensures that each application is installed
-in an isolated environment.  This resolves issues of dependency versions and
-allows applications to be run from any environment.
-
 ### The output has no color with many jobs!
 
 Click should determine if the output supports color display and react automatically
