@@ -677,6 +677,54 @@ def test_renderer_totals_unrounded_costs(
     assert_result_matches(renderer.format_jobs(jobs), expected)
 
 
+@pytest.mark.parametrize(
+    ("format_str", "expected"),
+    [
+        (
+            "State",
+            [
+                "State Cost",
+                "COMPLETED $0.00400741",
+                "Total $0.00400741",
+            ],
+        ),
+        ("Cost", ["$0.00400741", "Total Cost: $0.00400741"]),
+    ],
+)
+def test_renderer_total_label_without_jobid(
+    format_str: str,
+    expected: list[str],
+) -> None:
+    """The footer label falls back when the JobID column is not shown."""
+    valid_titles = [
+        "AllocTRES",
+        "Cluster",
+        "ElapsedRaw",
+        "JobID",
+        "JobIDRaw",
+        "Partition",
+        "State",
+    ]
+    job = Job("123", "123", None)
+    job.update(
+        {
+            "AllocTRES": "cpu=1,mem=7G",
+            "Cluster": "greatlakes",
+            "ElapsedRaw": "960",
+            "JobID": "123",
+            "Partition": "standard",
+            "State": "COMPLETED",
+        }
+    )
+
+    renderer = output_renderer.OutputRenderer(
+        valid_titles,
+        output_renderer.RenderOptions(total_cost=True),
+        format_str,
+    )
+    assert_result_matches(renderer.format_jobs([job]), expected)
+
+
 def test_renderer_total_is_unavailable_without_available_costs() -> None:
     """An empty or wholly unsupported result does not report a zero total."""
     renderer = output_renderer.OutputRenderer(
