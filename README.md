@@ -44,7 +44,7 @@ Show a report with total estimated cost:
 reportseff -u "$USER" --since d=7 --total-cost
 ```
 
-![Example](https://github.com/troycomi/reportseff/raw/main/imgs/gl-example.png)
+![Example](https://github.com/um-jglad/reportseff/raw/main/imgs/gl-example.png)
 
 ## About
 
