@@ -91,7 +91,7 @@ This fork is not published to PyPI; `pip install reportseff` installs the
 upstream package without the Great Lakes cost features. Build it from source
 using the cluster instructions below.
 
-### Build and test the Great Lakes cost branch on a cluster
+### Build and test the Great Lakes cost features on a cluster
 
 Run these commands on a cluster login node where `sacct` is available. A compute
 node allocation is not required. The first setup requires network access to
@@ -115,11 +115,10 @@ GitHub and PyPI.
    uv --version
    ```
 
-3. Clone the fork and check out the cost-feature branch.
+3. Clone this fork
 
    ```sh
-   git clone --branch feature/great-lakes-job-cost \
-     https://github.com/um-jglad/reportseff.git
+   git clone https://github.com/um-jglad/reportseff.git
    cd reportseff
    ```
 
@@ -169,27 +168,16 @@ GitHub and PyPI.
    Python. The installed command may then fail after that module is unloaded
    because its `libpython` shared library is no longer on the library path.
 
-To rebuild after new changes are pushed:
+To rebuild after new changes are merged to `main`:
 
 ```sh
-git switch feature/great-lakes-job-cost
+git switch main
 git pull --ff-only
 uv python install 3.12
 uv sync --locked --python 3.12 --managed-python
 uv run pytest
 uv build --clear --python 3.12
 uv tool install --force --python 3.12 --managed-python ./dist/*.whl
-```
-
-If an earlier installation reports an error such as
-`libpython3.13.so.1.0: cannot open shared object file`, reinstall it with the
-managed interpreter:
-
-```sh
-uv python install 3.12
-uv tool uninstall reportseff
-uv tool install --python 3.12 --managed-python ./dist/*.whl
-reportseff --version
 ```
 
 ### Sample Usage
@@ -449,6 +437,20 @@ sbatch --output job2_%A.out job2.sh
 sbatch --output job3_%A.out job3.sh
 # ignore the job prefix
 reportseff --slurm-format %x_%A.out
+```
+
+### The installed command fails with a libpython error
+
+If an installation reports an error such as
+`libpython3.13.so.1.0: cannot open shared object file`, the tool environment
+was created with a cluster module's Python that is no longer loaded. Reinstall
+it with the managed interpreter:
+
+```sh
+uv python install 3.12
+uv tool uninstall reportseff
+uv tool install --python 3.12 --managed-python ./dist/*.whl
+reportseff --version
 ```
 
 ## Acknowledgments
