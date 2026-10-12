@@ -4,27 +4,33 @@
 
 > A python script for tabular display of slurm efficiency information
 
-This is a University of Michigan Great Lakes-focused fork of
+This is a University of Michigan fork of
 [`reportseff`](https://github.com/troycomi/reportseff). It keeps the upstream
-efficiency reporting workflow and adds Great Lakes-specific job cost
-estimation.
+efficiency reporting workflow and adds job cost estimation for the Great Lakes
+and Armis2 clusters.
 
-## UM Great Lakes features
+## UM cluster cost features
 
 - Add the `Cost` column to reports with `--format +Cost`.
 - Append report totals with `--total-cost`.
-- Supported Great Lakes partitions: `standard`, `debug`, `viz`, `largemem`,
-  `gpu`, `spgpu`, `gpu-rtx6000`, and `gpu_mig40`.
+- Each job is priced from its own `Cluster` and `Partition` fields, so one
+  build works on both clusters and no flag is needed.
+- Supported Great Lakes partitions (rates retrieved August 7, 2026): `standard`,
+  `debug`, `viz`, `largemem`, `gpu`, `spgpu`, `gpu-rtx6000`, and `gpu_mig40`.
+- Supported Armis2 partitions (rates retrieved October 12, 2026): `standard`,
+  `debug`, `largemem`, `gpu`, and `gpu-rtx6000`.
 - Cost estimates use actual elapsed time and the maximum weighted CPU, memory,
   or GPU allocation.
 - Cost is unavailable (`---`) for running or pending jobs, unsupported clusters
   or partitions, incomplete accounting data, and missing resource information.
-- Estimates use published Great Lakes list rates and exclude UMRCP allocations,
-  unit-cost sharing, shortcodes, refunds, and invoice rounding.
-- Built-in rates are a snapshot published on August 7, 2026 and may require
-  updates when rates change.
+- Estimates use published list rates and exclude UMRCP allocations, unit-cost
+  sharing, shortcodes, refunds, and invoice rounding.
+- Faculty-owned and other private partitions (for example Armis2 `miumbrella`
+  or `tocho`) are not charged per job and show `---`.
+- Built-in rates are a per-cluster snapshot and may require updates when rates
+  change.
 
-### Great Lakes examples
+### Cost examples
 
 Show recent jobs for your user with cost:
 
@@ -88,10 +94,10 @@ The upstream `reportseff` project is described in
 `reportseff` runs on Python >= 3.10.
 The only external dependency is click (>= 6.7).
 This fork is not published to PyPI; `pip install reportseff` installs the
-upstream package without the Great Lakes cost features. Build it from source
+upstream package without the cluster cost features. Build it from source
 using the cluster instructions below.
 
-### Build and test the Great Lakes cost features on a cluster
+### Build and test the cluster cost features
 
 Run these commands on a cluster login node where `sacct` is available. A compute
 node allocation is not required. The first setup requires network access to
@@ -149,7 +155,8 @@ GitHub and PyPI.
    uv run reportseff JOB_ID --format +Cost
    ```
 
-   Replace `JOB_ID` with a completed Great Lakes job ID. Cost is unavailable for
+   Replace `JOB_ID` with a completed Great Lakes or Armis2 job ID. The same steps
+   apply on both clusters. Cost is unavailable for
    running jobs, unsupported clusters or partitions, and incomplete accounting
    records.
 
@@ -330,8 +337,8 @@ directory to check for slurm outputs.
 - `--format`: Provide a comma separated list of columns to produce. Prefixing
   the argument with `+` adds the specified values to the defaults. Values can
   be any valid column name to sacct and the custom efficiency values: TimeEff,
-  CPUEff, MemEff, Energy, and Cost. For `Cost` behavior and supported Great
-  Lakes partitions, see [UM Great Lakes features](#um-great-lakes-features).
+  CPUEff, MemEff, Energy, and Cost. For `Cost` behavior and supported
+  partitions, see [UM cluster cost features](#um-cluster-cost-features).
   Can also optionally set alignment (<, ^, >) and maximum width.
   Default is center-aligned with a width of the maximum column entry.  For
   example, `--format 'jobid%>,state%10,memeff%<5'` produces 3 columns with:
@@ -343,7 +350,7 @@ directory to check for slurm outputs.
   unavailable are excluded from the total. The unrounded job costs are summed
   before the final total is rounded to eight decimal places. For details on
   `Cost` availability and assumptions, see
-  [UM Great Lakes features](#um-great-lakes-features).
+  [UM cluster cost features](#um-cluster-cost-features).
 - `--slurm-format`: The filename pattern passed to sbatch during job submission.
   Overrides the default regex for job id parsing from filenames.  E.g. to match
   filenames like `123456.out` set `--slurm-format %j.out`.

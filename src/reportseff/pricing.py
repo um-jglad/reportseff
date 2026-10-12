@@ -1,4 +1,4 @@
-"""Estimate Great Lakes job costs from allocated Slurm resources."""
+"""Estimate Great Lakes and Armis2 job costs from allocated Slurm resources."""
 
 from __future__ import annotations
 
@@ -6,7 +6,6 @@ import re
 from dataclasses import dataclass
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 
-PRICING_DATE = "2026-08-07"
 UNAVAILABLE = "---"
 GIB = Decimal(1024) ** 3
 MONEY_QUANTUM = Decimal("0.00000001")
@@ -32,11 +31,19 @@ class PricingProfile:
     gpu_unit: Decimal | None = None
 
 
-STANDARD = PricingProfile(Decimal("0.000250463"), Decimal(1), Decimal(7))
-PRICING_PROFILES = {
-    "standard": STANDARD,
-    "debug": STANDARD,
-    "viz": STANDARD,
+@dataclass(frozen=True)
+class ClusterPricing:
+    """A cluster's partition rates and the date they were retrieved."""
+
+    date: str
+    profiles: dict[str, PricingProfile]
+
+
+GREAT_LAKES_STANDARD = PricingProfile(Decimal("0.000250463"), Decimal(1), Decimal(7))
+GREAT_LAKES_PROFILES = {
+    "standard": GREAT_LAKES_STANDARD,
+    "debug": GREAT_LAKES_STANDARD,
+    "viz": GREAT_LAKES_STANDARD,
     "largemem": PricingProfile(Decimal("0.000770370"), Decimal(1), Decimal("41.75")),
     "gpu": PricingProfile(Decimal("0.002739120"), Decimal(20), Decimal(90), Decimal(1)),
     "spgpu": PricingProfile(
@@ -50,6 +57,23 @@ PRICING_PROFILES = {
     ),
 }
 
+ARMIS2_STANDARD = PricingProfile(Decimal("0.000290046"), Decimal(1), Decimal(7))
+# Faculty-owned partitions are billed per node per month, so they are omitted.
+ARMIS2_PROFILES = {
+    "standard": ARMIS2_STANDARD,
+    "debug": ARMIS2_STANDARD,
+    "largemem": PricingProfile(Decimal("0.000803704"), Decimal(1), Decimal("26.89")),
+    "gpu": PricingProfile(Decimal("0.002815741"), Decimal(5), Decimal(15), Decimal(1)),
+    "gpu-rtx6000": PricingProfile(
+        Decimal("0.003973804"), Decimal(16), Decimal(192), Decimal(1)
+    ),
+}
+
+CLUSTER_PRICING = {
+    "greatlakes": ClusterPricing("2026-08-07", GREAT_LAKES_PROFILES),
+    "armis2": ClusterPricing("2026-10-12", ARMIS2_PROFILES),
+}
+
 
 def estimate_cost(
     cluster: str,
@@ -58,7 +82,7 @@ def estimate_cost(
     elapsed_seconds: str,
     alloc_tres: str,
 ) -> str:
-    """Return the estimated list-price cost of a completed Great Lakes job.
+    """Return the estimated list-price cost of a completed job.
 
     Args:
         cluster: Slurm cluster name.
@@ -83,13 +107,14 @@ def calculate_cost(
     elapsed_seconds: str,
     alloc_tres: str,
 ) -> Decimal | None:
-    """Return an unrounded Great Lakes list-price cost when available."""
+    """Return an unrounded list-price cost when available."""
     if state.casefold() in {"running", "pending"}:
         return None
-    if cluster.casefold() != "greatlakes":
+    cluster_pricing = CLUSTER_PRICING.get(cluster.casefold())
+    if cluster_pricing is None:
         return None
 
-    profile = PRICING_PROFILES.get(partition.casefold())
+    profile = cluster_pricing.profiles.get(partition.casefold())
     if profile is None:
         return None
 

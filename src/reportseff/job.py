@@ -11,7 +11,7 @@ import re
 from datetime import timedelta
 from typing import TYPE_CHECKING, Any, cast
 
-from .great_lakes_pricing import calculate_cost, format_cost
+from .pricing import calculate_cost, format_cost
 
 if TYPE_CHECKING:
     from collections.abc import Generator

@@ -11,8 +11,8 @@ from typing import TYPE_CHECKING, Any, cast
 
 import click
 
-from .great_lakes_pricing import format_cost
 from .job import Job, state_colors
+from .pricing import format_cost
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Generator
