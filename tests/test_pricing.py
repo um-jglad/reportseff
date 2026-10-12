@@ -1,11 +1,13 @@
-"""Tests for Great Lakes list-price job cost estimates."""
+"""Tests for Great Lakes and Armis2 list-price job cost estimates."""
 
 from __future__ import annotations
 
+from decimal import Decimal
+
 import pytest
 
-from reportseff.great_lakes_pricing import (
-    PRICING_DATE,
+from reportseff.pricing import (
+    CLUSTER_PRICING,
     calculate_cost,
     estimate_cost,
     format_cost,
@@ -138,7 +140,7 @@ def test_estimate_cost_sums_typed_gpu_counts() -> None:
 @pytest.mark.parametrize(
     ("cluster", "partition"),
     [
-        ("armis2", "standard"),
+        ("somecluster", "standard"),
         ("greatlakes", "standard-oc"),
         ("greatlakes", "viz-long"),
         ("greatlakes", "faculty-owned"),
@@ -148,7 +150,7 @@ def test_estimate_cost_rejects_unsupported_targets(
     cluster: str,
     partition: str,
 ) -> None:
-    """Only explicitly published Great Lakes partition rates are supported."""
+    """Only explicitly published cluster and partition rates are supported."""
     assert estimate_cost(cluster, "COMPLETED", partition, "60", "cpu=1,mem=7G") == "---"
 
 
@@ -178,16 +180,87 @@ def test_estimate_cost_rejects_incomplete_or_malformed_resources(
     assert estimate_cost("greatlakes", "COMPLETED", "gpu", elapsed, alloc_tres) == "---"
 
 
-def test_pricing_profile_date() -> None:
-    """The built-in rates have an explicit snapshot date."""
-    assert PRICING_DATE == "2026-08-07"
+def test_pricing_snapshot_dates() -> None:
+    """Each cluster's built-in rates have an explicit snapshot date."""
+    assert CLUSTER_PRICING["greatlakes"].date == "2026-08-07"
+    assert CLUSTER_PRICING["armis2"].date == "2026-10-12"
 
 
 def test_unrounded_costs_are_summed_before_formatting() -> None:
     """The total is calculated from raw costs rather than displayed values."""
-    cost = calculate_cost(
-        "greatlakes", "COMPLETED", "standard", "960", "cpu=1,mem=7G"
-    )
+    cost = calculate_cost("greatlakes", "COMPLETED", "standard", "960", "cpu=1,mem=7G")
     assert cost is not None
     assert format_cost(cost) == "$0.00400741"
     assert format_cost(cost + cost) == "$0.00801482"
+
+
+@pytest.mark.parametrize(
+    ("partition", "elapsed", "alloc_tres", "expected"),
+    [
+        ("standard", "3600", "cpu=4,mem=12G,node=1", Decimal("0.06961104")),
+        ("debug", "3600", "cpu=4,mem=12G,node=1", Decimal("0.06961104")),
+        ("standard", "60", "cpu=1,mem=14G", Decimal("0.000580092")),
+        ("largemem", "60", "cpu=2,mem=10G", Decimal("0.001607408")),
+        ("gpu", "3600", "cpu=5,mem=15G,gres/gpu=2", Decimal("0.33788892")),
+        (
+            "gpu-rtx6000",
+            "600",
+            "cpu=16,mem=192G,gres/gpu=1",
+            Decimal("0.03973804"),
+        ),
+    ],
+)
+def test_armis2_costs(
+    partition: str,
+    elapsed: str,
+    alloc_tres: str,
+    expected: Decimal,
+) -> None:
+    """Armis2 partitions use their own rates and max-of-resources weighting."""
+    cost = calculate_cost("armis2", "COMPLETED", partition, elapsed, alloc_tres)
+    assert cost == expected
+
+
+@pytest.mark.parametrize(
+    "partition",
+    [
+        "miumbrella",
+        "nnallasa",
+        "tocho",
+        "tocho-rtx6000",
+        "sigbio-a40",
+        "drjieliu-h200",
+        "build",
+        "unknown",
+    ],
+)
+def test_armis2_unpriced_partitions(partition: str) -> None:
+    """Private and unknown Armis2 partitions are not charged per job."""
+    assert (
+        estimate_cost("armis2", "COMPLETED", partition, "60", "cpu=1,mem=7G") == "---"
+    )
+
+
+@pytest.mark.parametrize("cluster", ["armis2", "ARMIS2", "GreatLakes", "GREATLAKES"])
+def test_cluster_matching_is_case_insensitive(cluster: str) -> None:
+    """Cluster names are matched without regard to case."""
+    assert estimate_cost(cluster, "COMPLETED", "standard", "60", "cpu=1,mem=7G") != (
+        "---"
+    )
+
+
+def test_cluster_rates_are_independent() -> None:
+    """The same partition name is priced per cluster."""
+    args = ("COMPLETED", "standard", "60", "cpu=1,mem=7G")
+    assert estimate_cost("greatlakes", *args) == "$0.00025046"
+    assert estimate_cost("armis2", *args) == "$0.00029005"
+
+
+def test_armis2_cost_matches_slurm_billing() -> None:
+    """The estimate agrees with Slurm's billing TRES (weight * 1e-7 dollars)."""
+    cost = calculate_cost(
+        "armis2", "COMPLETED", "debug", "60", "billing=11601,cpu=4,mem=12G,node=1"
+    )
+    assert cost is not None
+    billing_dollars = Decimal(11601) * Decimal("1e-7")
+    assert abs(cost - billing_dollars) / billing_dollars < Decimal("1e-4")
